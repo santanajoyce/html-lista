@@ -1,6 +1,8 @@
 body {
     font-family: Arial, sans-serif;
     margin: 20px;
+    background: linear-gradient(to bottom, #7FFFD4, #FFFF00); /* Gradiente de verde água para amarelo como fundo do #app */
+
   }
  
   #app {
@@ -65,3 +67,44 @@ footer a{
    font-weight: bold;
  
 }
+
+
+body {
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0; /* Removendo a margem para preencher toda a página */
+        background: linear-gradient(to bottom, #add8e6, #d8bfd8); /* Gradiente de azul bebê para roxo claro */
+        color: black; /* Cor do texto */
+    }
+    
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background: linear-gradient(to bottom, #add8e6, #d8bfd8); /* Fundo azul água para rosa claro */
+    color: black; /* Cor do texto */
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background: linear-gradient(to bottom, #add8e6, #d8bfd8); /* Fundo azul água para rosa claro */
+    background-repeat: no-repeat;
+
+    color: black; /* Cor do texto */
+}
+
+#app {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px; /* Adicionando espaço ao redor do conteúdo */
+    border-radius: 10px; /* Borda arredondada para o contêiner */
+    background-color: white; /* Preenchimento branco dentro do contorno branco */
+    box-shadow: 0 0 0 1px black; /* Adiciona um contorno branco */
+    color: black; /* Cor do texto dentro do #app */
+}
+
+/* Restante do seu CSS permanece inalterado */
+
+
