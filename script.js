@@ -1,44 +1,192 @@
-function addItem() {
-    const productInput = document.getElementById('product');
-    const priceInput = document.getElementById('price');
-    const shoppingList = document.getElementById('shopping-list');
- 
-    const product = productInput.value;
-    const price = priceInput.value;
- 
-    if (product && price) {
-      // Obter dados do localStorage
-      const localData = JSON.parse(localStorage.getItem('shoppingList')) || [];
- 
-      // Adicionar novo item aos dados locais
-      localData.push({ product, price });
- 
-      // Armazenar dados atualizados no localStorage
-      localStorage.setItem('shoppingList', JSON.stringify(localData));
- 
-      // Adicionar item à lista na página
-      const listItem = document.createElement('li');
-      listItem.innerHTML = `<span>${product}</span><span>${price}</span>`;
-      shoppingList.appendChild(listItem);
- 
-      // Limpar os campos de entrada
-      productInput.value = '';
-      priceInput.value = '';
-    } else {
-      alert('Por favor, preencha todos os campos.');
-    }
-  }
- 
-  // Recuperar e exibir dados do localStorage ao carregar a página
-  window.onload = function () {
-    const shoppingList = document.getElementById('shopping-list');
-    const localData = JSON.parse(localStorage.getItem('shoppingList')) || [];
- 
-    localData.forEach(item => {
-      const listItem = document.createElement('li');
-      listItem.innerHTML = `<span>${item.product}</span><span>${item.price}</span>`;
-      shoppingList.appendChild(listItem);
-    });
-  };
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-firestore.js";
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyCwuAE3vygVfd5n43GMubhmFU7acB6CwE4",
+  authDomain: "lista-compras-51bc1.firebaseapp.com",
+  projectId: "lista-compras-51bc1",
+  storageBucket: "lista-compras-51bc1.appspot.com",
+  messagingSenderId: "491443731555",
+  appId: "1:491443731555:web:3e22b0494295462a7e4c56"
+};
+
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+
+
+// Get a reference to the Firestore database
+const db = getFirestore(app);
+
+
+const productInput = document.getElementById('product');
+const priceInput = document.getElementById('price');
+const shoppingList = document.getElementById('shopping-list');
+
+
+const addItem = document.getElementById('add-item'); //botão
+
+
+
+
+
+
+addItem.addEventListener("click", async function() {
+   console.log('função addItem é chamada');
+   const product = productInput.value;
+   const price = priceInput.value;
+
+
+   if (product && price) {
+       const item = { product, price };
+
+
+       // Store item in localStorage
+       const localData = JSON.parse(localStorage.getItem('shoppingList')) || [];
+       localData.push(item);
+       localStorage.setItem('shoppingList', JSON.stringify(localData));
+
+
+       // Send item to Firestore
+       const doc = await sendItemToFirestore(item);
+
+
+       // Add item to the list on the page
+       const listItem = document.createElement('li');
+       listItem.innerHTML = `<span>${product}</span><span>$ ${price}</span>`;
+       listItem.setAttribute('data-doc-id', doc.id);
+       shoppingList.appendChild(listItem);
+
+
+       // Clear input fields
+       productInput.value = '';
+       priceInput.value = '';
+
+
+       // Configurar eventos de exclusão para o novo elemento
+       listItem.setAttribute('data-doc-id', doc.id);
+       listItem.addEventListener("click", async function(){
+           try {
+               const docId = this.getAttribute('data-doc-id');
+               await deleteItemFromFirestore(docId);
+           } catch (error) {
+               console.error('Erro ao apagar o item do Firestore:', error);
+           }
+       });
+   } else {
+       alert('Por favor, preencha todos os campos.');
+   }
+});
+
+
+
+
+async function sendItemToFirestore(item) {
+   const collectionRef = collection(db, 'shopping-list');
+   const docRef = await addDoc(collectionRef, item);
+   console.log('Item enviado ao Firestore com sucesso');
+
+
+   // Incluir o ID gerado pelo Firestore no objeto item
+   return { ...item, id: docRef.id };
+}
+
+
+// Retrieve and display data from localStorage on page load
+window.onload = async function () {
+   await displayFirestoreData();
+};
+
+
+async function displayFirestoreData() {
+   try {
+       // Limpar a lista no DOM
+       shoppingList.innerHTML = '';
+
+
+       // Recuperar e exibir dados do Firestore
+       const querySnapshot = await getDocs(collection(db, 'shopping-list'));
+       querySnapshot.forEach((doc) => {
+           const listItem = document.createElement('li');
+           listItem.innerHTML = `<span>${doc.data().product}</span><span>R$ ${doc.data().price}</span>`;
+           listItem.setAttribute('data-doc-id', doc.id);
+           shoppingList.appendChild(listItem);
+       });
+
+
+       // Configurar eventos de exclusão para todos os elementos
+       setupDeleteEventListeners();
+   } catch (error) {
+       console.error('Erro ao exibir dados do Firestore:', error);
+   }
+}
+
+
+
+
+// Function to delete item from Firestore (call this function when needed)
+async function deleteItemFromFirestore(docId) {
+   try {
+       // Remove item from Firestore
+       await deleteDoc(doc(db, 'shopping-list', docId));
+       console.log('Item apagado do Firestore com sucesso');
+
+
+       // Remove item from localStorage
+       const localData = JSON.parse(localStorage.getItem('shoppingList')) || [];
+       const updatedLocalData = localData.filter(item => item.id !== docId);
+       localStorage.setItem('shoppingList', JSON.stringify(updatedLocalData));
+       console.log('Item removido do localStorage com sucesso');
+
+
+       // Remove item from the DOM
+       const listItem = document.querySelector(`li[data-doc-id="${docId}"]`);
+       if (listItem) {
+           listItem.remove();
+           console.log('Elemento da lista removido do DOM com sucesso');
+       } else {
+           console.warn('Elemento da lista não encontrado no DOM');
+       }
+
+
+       // Atualizar a exibição do Firestore
+       await displayFirestoreData();
+   } catch (error) {
+       console.error('Erro ao apagar o item:', error);
+   }
+}
+
+
+function setupDeleteEventListeners() {
+   const listItems = document.querySelectorAll('li[data-doc-id]');
+   listItems.forEach(listItem => {
+       listItem.addEventListener("click", async function() {
+           try {
+               const docId = this.getAttribute('data-doc-id');
+               await deleteItemFromFirestore(docId);
+           } catch (error) {
+               console.error('Erro ao apagar o item do Firestore:', error);
+           }
+       });
+   });
+}
+
+
+
+
+shoppingList.addEventListener("click", function(event) {
+   const listItem = event.target.closest('li[data-doc-id]');
+   if (listItem) {
+       const docId = listItem.getAttribute('data-doc-id');
+       deleteItemFromFirestore(docId);
+   }else{
+       console.error()
+   }
+});
 
     
