@@ -6,18 +6,28 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebas
 
 import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-firestore.js";
 // Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyCwuAE3vygVfd5n43GMubhmFU7acB6CwE4",
-  authDomain: "lista-compras-51bc1.firebaseapp.com",
-  projectId: "lista-compras-51bc1",
-  storageBucket: "lista-compras-51bc1.appspot.com",
-  messagingSenderId: "491443731555",
-  appId: "1:491443731555:web:3e22b0494295462a7e4c56"
-};
 
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+  // Import the functions you need from the SDKs you need
+  
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyCULC_Nhnsq2hAde8E6ybO29kToEdDQF58",
+    authDomain: "lista-compras-481ff.firebaseapp.com",
+    projectId: "lista-compras-481ff",
+    storageBucket: "lista-compras-481ff.appspot.com",
+    messagingSenderId: "1041571891457",
+    appId: "1:1041571891457:web:a3ec862f115264a2bb3300"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+
+
+
 
 
 // Get a reference to the Firestore database
